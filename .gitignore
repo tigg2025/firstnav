@@ -9,11 +9,13 @@
 # testing
 /coverage
 
-# next.js
+# next.js - 严格排除所有构建产物
 /.next/
 /out/
 .next
-.next/**
+.next/**/*
+**/cache/**
+**/.cache/**
 
 # production
 /build
@@ -57,23 +59,45 @@ pids
 *.seed
 *.pid.lock
 
-# Large files (Cloudflare Pages 25MB limit)
+# Large files (Cloudflare Pages 25MB limit) - 严格排除
 *.gz
 *.tar
 *.zip
 *.rar
 *.7z
+*.pack
+*.cache
 
-# Cache directories
+# Cache directories - 全面排除
 .cache/
 .temp/
 .tmp/
+**/cache/**
+**/.cache/**
+**/webpack/**
+**/.webpack/**
 
 # Package manager cache
 .pnpm-store/
 .yarn/cache/
 .npm/
+.npmrc
 
 # Build artifacts
 *.tsbuildinfo
 *.buildinfo
+
+# Webpack related
+webpack.config.js.cache
+.webpack-cache/
+
+# Next.js specific cache
+.next/**/*.pack
+.next/**/*.cache
+.next/cache/**/*
+.next/standalone/**/*
+
+# 任何大于10MB的文件
+**/10MB*
+**/20MB*
+**/30MB*

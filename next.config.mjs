@@ -2,16 +2,15 @@ import crypto from 'crypto'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 实验性功能 (生产环境暂时禁用)
+  // 禁用可能产生大缓存文件的功能
   experimental: {
-    // optimizeCss: true, // 暂时禁用，可能导致构建问题
-    // optimizeServerReact: true,
+    // 全部禁用以避免大文件
   },
   
   // 图片优化配置 (Cloudflare Compatible)
   images: {
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    formats: ['image/webp'], // 仅使用WebP
+    minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -45,11 +44,6 @@ const nextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
-          // Cloudflare 特定优化
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
         ],
       },
     ]
@@ -71,51 +65,53 @@ const nextConfig = {
     ]
   },
 
-  // 移除过时的配置项
+  // 基本配置
   poweredByHeader: false,
-  generateEtags: true,
+  generateEtags: false, // 减少缓存复杂性
   
   // Cloudflare Pages 兼容配置
   output: 'standalone',
   
-  // 优化的 Webpack 配置
-  webpack: (config, { dev, isServer, webpack }) => {
-    // 生产环境优化
+  // 严格限制的 Webpack 配置
+  webpack: (config, { dev, isServer }) => {
+    // 生产环境严格限制
     if (!dev && !isServer) {
+      // 配置缓存以避免大文件
+      config.cache = {
+        type: 'memory'
+      };
+      
+      // 平衡的代码分割配置
       config.optimization.splitChunks = {
         chunks: 'all',
         minSize: 20000,
-        maxSize: 244000, // Cloudflare 限制考虑
+        maxSize: 500000, // 适度限制块大小 (500KB)
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
         cacheGroups: {
-          framework: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
             chunks: 'all',
-            name: 'framework',
-            test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
-            priority: 40,
-            enforce: true,
+            maxSize: 800000 // 800KB限制
           },
-          lib: {
-            test(module) {
-              return module.size() > 160000 && /node_modules[/\\]/.test(module.identifier())
-            },
-            name(module) {
-              const hash = crypto.createHash('sha1')
-              hash.update(module.identifier())
-              return hash.digest('hex').substring(0, 8)
-            },
-            priority: 30,
-            minChunks: 1,
-            reuseExistingChunk: true,
-          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            priority: 5,
+            chunks: 'all',
+            reuseExistingChunk: true
+          }
         },
       }
     }
 
-    // 忽略大文件警告
+    // 适度的性能配置
     config.performance = {
-      hints: false,
-      maxEntrypointSize: 512000,
-      maxAssetSize: 512000
+      hints: 'warning',
+      maxEntrypointSize: 1000000, // 1MB
+      maxAssetSize: 1000000 // 1MB
     }
 
     return config
