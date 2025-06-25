@@ -8,7 +8,7 @@
   "homepage": "https://ai-chip-navigator.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/ai-chip-navigator.git"
+    "url": "https://github.com/tigg2025/firstnav.git"
   },
   "engines": {
     "node": ">=18.17.0",
