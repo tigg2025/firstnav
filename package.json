@@ -24,7 +24,10 @@
     "preview": "next build && next start",
     "export": "next build && next export",
     "deploy:vercel": "vercel --prod",
-    "deploy:netlify": "netlify deploy --prod"
+    "deploy:netlify": "netlify deploy --prod",
+    "deploy:github": "git add . && git commit -m 'feat: update' && git push origin main",
+    "clean": "rm -rf .next out node_modules/.cache",
+    "check": "pnpm type-check && pnpm lint && pnpm build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
