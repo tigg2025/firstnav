@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /private/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Sitemap
+Sitemap: https://ai-chip-navigator.com/sitemap.xml 
