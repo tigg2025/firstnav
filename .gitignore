@@ -13,6 +13,7 @@
 /.next/
 /out/
 .next
+.next/**
 
 # production
 /build
@@ -55,3 +56,24 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Large files (Cloudflare Pages 25MB limit)
+*.gz
+*.tar
+*.zip
+*.rar
+*.7z
+
+# Cache directories
+.cache/
+.temp/
+.tmp/
+
+# Package manager cache
+.pnpm-store/
+.yarn/cache/
+.npm/
+
+# Build artifacts
+*.tsbuildinfo
+*.buildinfo

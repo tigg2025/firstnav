@@ -8,13 +8,16 @@ const nextConfig = {
     // optimizeServerReact: true,
   },
   
-  // 图片优化配置
+  // 图片优化配置 (Cloudflare Compatible)
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Cloudflare 优化
+    unoptimized: false,
+    loader: 'default',
   },
 
   // 压缩配置
@@ -42,6 +45,11 @@ const nextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
+          // Cloudflare 特定优化
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
     ]
@@ -67,15 +75,17 @@ const nextConfig = {
   poweredByHeader: false,
   generateEtags: true,
   
-  // 输出配置
+  // Cloudflare Pages 兼容配置
   output: 'standalone',
   
-  // Webpack配置
-  webpack: (config, { dev, isServer }) => {
+  // 优化的 Webpack 配置
+  webpack: (config, { dev, isServer, webpack }) => {
+    // 生产环境优化
     if (!dev && !isServer) {
-      // 生产环境优化
       config.optimization.splitChunks = {
         chunks: 'all',
+        minSize: 20000,
+        maxSize: 244000, // Cloudflare 限制考虑
         cacheGroups: {
           framework: {
             chunks: 'all',
@@ -100,6 +110,14 @@ const nextConfig = {
         },
       }
     }
+
+    // 忽略大文件警告
+    config.performance = {
+      hints: false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000
+    }
+
     return config
   },
 }
