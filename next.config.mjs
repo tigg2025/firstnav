@@ -1,101 +1,46 @@
-import crypto from 'crypto'
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 禁用可能产生大缓存文件的功能
-  experimental: {
-    // 全部禁用以避免大文件
-  },
+  // 静态导出配置
+  output: 'export',
+  trailingSlash: true,
   
-  // 图片优化配置 (Cloudflare Compatible)
+  // 静态导出图片配置
   images: {
-    formats: ['image/webp'], // 仅使用WebP
-    minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Cloudflare 优化
-    unoptimized: false,
-    loader: 'default',
-  },
-
-  // 压缩配置
-  compress: true,
-
-  // 安全headers
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-        ],
-      },
-    ]
-  },
-
-  // 重定向配置
-  async redirects() {
-    return [
-      {
-        source: '/chips',
-        destination: '/categories',
-        permanent: true,
-      },
-      {
-        source: '/chip/:slug',
-        destination: '/categories/:slug',
-        permanent: true,
-      },
-    ]
+    unoptimized: true, // 静态导出必须禁用图片优化
   },
 
   // 基本配置
   poweredByHeader: false,
-  generateEtags: false, // 减少缓存复杂性
+  generateEtags: false,
   
-  // Cloudflare Pages 兼容配置
-  output: 'standalone',
+  // 禁用ESLint在构建时的检查（如果有问题的话）
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   
-  // Cloudflare Pages 优化配置
+  // TypeScript配置
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // webpack优化
   webpack: (config, { dev, isServer }) => {
-    // 完全禁用文件系统缓存
-    config.cache = false;
-    
+    // 生产环境优化
     if (!dev) {
-      // 简化的代码分割配置
       config.optimization.splitChunks = {
         chunks: 'all',
-        minSize: 30000,
-        maxSize: 244000, // 接近但小于25MB/100的安全值
+        minSize: 20000,
+        maxSize: 200000,
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             chunks: 'all',
-            maxSize: 200000 // 200KB限制
+            maxSize: 150000
           }
         },
       }
     }
-
-    // 禁用性能提示以避免构建失败
-    config.performance = false;
 
     return config
   },

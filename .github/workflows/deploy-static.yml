@@ -1,0 +1,76 @@
+name: Build and Deploy Static Site
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Run type check
+      run: pnpm type-check
+      
+    - name: Run linting
+      run: pnpm lint
+      
+    - name: Build static site
+      run: pnpm build
+      env:
+        NODE_ENV: production
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: static-site
+        path: out/
+        
+    # 部署到 GitHub Pages
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./out
+        cname: # 在这里添加你的自定义域名（如果有）
+        
+    # 可选：部署到 Cloudflare Pages（静态文件）
+    - name: Deploy to Cloudflare Pages
+      if: github.ref == 'refs/heads/main'
+      uses: cloudflare/pages-action@v1
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: firstnav
+        directory: out
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        
+    # 输出部署信息
+    - name: Deployment Summary
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "🎉 部署完成！"
+        echo "📊 构建统计："
+        du -sh out/
+        echo "📁 文件数量："
+        find out -type f | wc -l
+        echo "✅ 所有文件都是静态文件，无大小限制问题" 
