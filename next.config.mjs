@@ -72,47 +72,30 @@ const nextConfig = {
   // Cloudflare Pages 兼容配置
   output: 'standalone',
   
-  // 严格限制的 Webpack 配置
+  // Cloudflare Pages 优化配置
   webpack: (config, { dev, isServer }) => {
-    // 生产环境严格限制
-    if (!dev && !isServer) {
-      // 配置缓存以避免大文件
-      config.cache = {
-        type: 'memory'
-      };
-      
-      // 平衡的代码分割配置
+    // 完全禁用文件系统缓存
+    config.cache = false;
+    
+    if (!dev) {
+      // 简化的代码分割配置
       config.optimization.splitChunks = {
         chunks: 'all',
-        minSize: 20000,
-        maxSize: 500000, // 适度限制块大小 (500KB)
-        maxAsyncRequests: 30,
-        maxInitialRequests: 30,
+        minSize: 30000,
+        maxSize: 244000, // 接近但小于25MB/100的安全值
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
-            priority: 10,
             chunks: 'all',
-            maxSize: 800000 // 800KB限制
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            priority: 5,
-            chunks: 'all',
-            reuseExistingChunk: true
+            maxSize: 200000 // 200KB限制
           }
         },
       }
     }
 
-    // 适度的性能配置
-    config.performance = {
-      hints: 'warning',
-      maxEntrypointSize: 1000000, // 1MB
-      maxAssetSize: 1000000 // 1MB
-    }
+    // 禁用性能提示以避免构建失败
+    config.performance = false;
 
     return config
   },
