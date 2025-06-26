@@ -24,6 +24,8 @@
     "serve": "cd out && python3 -m http.server 3000",
     "type-check": "tsc --noEmit",
     "preview": "pnpm build:export && pnpm serve",
+    "predeploy": "pnpm run build",
+    "deploy": "gh-pages -d out",
     "deploy:github": "git add . && git commit -m 'feat: update' && git push origin main",
     "clean": "rm -rf .next out node_modules/.cache",
     "check": "pnpm type-check && pnpm lint && pnpm build"
