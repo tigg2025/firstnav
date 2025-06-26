@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI芯片导航 - 专业的AI芯片信息导航平台</title>
+    <meta name="description" content="汇聚全球AI芯片信息，提供详细的技术参数、性能对比和最新资讯">
+    <meta name="keywords" content="AI芯片,人工智能芯片,GPU,NPU,ASIC,FPGA,芯片导航,芯片对比">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        /* 自定义样式 */
+        .chip-card {
+            transition: all 0.3s ease;
+        }
+        .chip-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .category-icon {
+            transition: all 0.3s ease;
+        }
+        .chip-card:hover .category-icon {
+            transform: scale(1.1);
+        }
+        /* 语言切换动画 */
+        .lang-dropdown {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .lang-dropdown.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="brain" class="h-8 w-8 text-blue-600"></i>
+                        <h1 class="text-2xl font-bold text-gray-900" id="site-title">AI芯片导航</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <nav class="hidden md:flex space-x-8">
+                        <a href="#" class="text-gray-900 font-medium" id="nav-home">首页</a>
+                        <a href="#categories" class="text-gray-600 hover:text-gray-900" id="nav-categories">分类</a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900" id="nav-manufacturers">厂商</a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900" id="nav-news">资讯</a>
+                        <a href="#" class="text-gray-600 hover:text-gray-900" id="nav-compare">对比</a>
+                    </nav>
+                    
+                    <!-- 语言切换器 -->
+                    <div class="relative">
+                        <button id="lang-button" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                            <i data-lucide="globe" class="h-4 w-4"></i>
+                            <span id="current-lang">🇨🇳 中文</span>
+                            <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                        </button>
+                        <div id="lang-dropdown" class="lang-dropdown absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                            <div class="py-1">
+                                <button class="lang-option w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2" data-lang="zh">
+                                    🇨🇳 中文
+                                </button>
+                                <button class="lang-option w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2" data-lang="en">
+                                    🇺🇸 English
+                                </button>
+                                <button class="lang-option w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2" data-lang="ja">
+                                    🇯🇵 日本語
+                                </button>
+                                <button class="lang-option w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2" data-lang="ko">
+                                    🇰🇷 한국어
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl font-bold text-gray-900 mb-6" id="hero-title">专业的AI芯片信息导航平台</h2>
+            <p class="text-xl text-gray-600 mb-8" id="hero-subtitle">汇聚全球AI芯片信息，提供详细的技术参数、性能对比和最新资讯</p>
+
+            <!-- Search Bar -->
+            <div class="max-w-2xl mx-auto relative">
+                <i data-lucide="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5"></i>
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="搜索芯片型号、厂商或技术规格..."
+                    class="w-full pl-12 pr-4 py-4 text-lg rounded-full border-2 border-gray-200 focus:border-blue-500 outline-none transition-colors"
+                />
+                <button id="search-btn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-16 px-4 sm:px-6 lg:px-8" id="categories">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-3xl font-bold text-gray-900 mb-12 text-center" id="categories-title">芯片分类</h3>
+
+            <!-- 应用场景 -->
+            <div class="mb-12">
+                <h4 class="text-xl font-semibold text-gray-800 mb-6" id="app-scenarios-title">应用场景</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="app-scenarios-grid">
+                    <!-- JavaScript 动态生成 -->
+                </div>
+            </div>
+
+            <!-- 硬件类型 -->
+            <div class="mb-12">
+                <h4 class="text-xl font-semibold text-gray-800 mb-6" id="hardware-types-title">硬件类型</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="hardware-types-grid">
+                    <!-- JavaScript 动态生成 -->
+                </div>
+            </div>
+
+            <!-- 部署位置 -->
+            <div class="mb-12">
+                <h4 class="text-xl font-semibold text-gray-800 mb-6" id="deployment-title">部署位置</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="deployment-grid">
+                    <!-- JavaScript 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Chips Section -->
+    <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-3xl font-bold text-gray-900 mb-12 text-center" id="featured-title">热门芯片</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="featured-chips">
+                <!-- JavaScript 动态生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-4xl font-bold text-blue-600 mb-2">500+</div>
+                    <div class="text-gray-600" id="stat-chips">AI芯片型号</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold text-green-600 mb-2">80+</div>
+                    <div class="text-gray-600" id="stat-vendors">芯片厂商</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold text-purple-600 mb-2">5</div>
+                    <div class="text-gray-600" id="stat-categories">主要分类</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold text-orange-600 mb-2">24/7</div>
+                    <div class="text-gray-600" id="stat-updates">实时更新</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i data-lucide="brain" class="h-6 w-6"></i>
+                        <span class="text-xl font-bold" id="footer-title">AI芯片导航</span>
+                    </div>
+                    <p class="text-gray-400" id="footer-desc">专业的AI芯片信息导航平台，为您提供最全面的AI芯片技术资讯。</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" id="footer-nav-title">快速导航</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white" id="footer-nav-home">首页</a></li>
+                        <li><a href="#categories" class="hover:text-white" id="footer-nav-categories">分类</a></li>
+                        <li><a href="#" class="hover:text-white">高级搜索</a></li>
+                        <li><a href="#" class="hover:text-white" id="footer-nav-compare">对比</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" id="footer-hot-title">热门分类</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white" id="footer-training">训练</a></li>
+                        <li><a href="#" class="hover:text-white" id="footer-inference">推理</a></li>
+                        <li><a href="#" class="hover:text-white" id="footer-edge">边缘</a></li>
+                        <li><a href="#" class="hover:text-white">GPU</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" id="footer-about-title">关于我们</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white" id="footer-about">关于我们</a></li>
+                        <li><a href="#" class="hover:text-white" id="footer-contact">联系我们</a></li>
+                        <li><a href="#" class="hover:text-white" id="footer-privacy">隐私政策</a></li>
+                        <li><a href="#" class="hover:text-white" id="footer-terms">使用条款</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 <span id="footer-copyright-title">AI芯片导航</span>. <span id="footer-copyright">保留所有权利.</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
