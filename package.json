@@ -3,7 +3,16 @@
   "version": "1.0.0",
   "description": "专业的AI芯片信息导航平台，提供全面的AI芯片技术资讯、性能对比和最新动态",
   "private": true,
-  "keywords": ["ai-chip", "navigation", "ai", "chip", "gpu", "npu", "nextjs", "react"],
+  "keywords": [
+    "ai-chip",
+    "navigation",
+    "ai",
+    "chip",
+    "gpu",
+    "npu",
+    "nextjs",
+    "react"
+  ],
   "author": "AI Chip Navigator Team",
   "homepage": "https://ai-chip-navigator.com",
   "repository": {
@@ -16,19 +25,17 @@
   },
   "scripts": {
     "build": "next build",
-    "build:export": "NEXT_EXPORT=true next build",
     "dev": "next dev",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "start": "next start",
     "serve": "cd out && python3 -m http.server 3000",
     "type-check": "tsc --noEmit",
-    "preview": "pnpm build:export && pnpm serve",
-    "predeploy": "pnpm run build",
-    "deploy": "gh-pages -d out",
-    "deploy:github": "git add . && git commit -m 'feat: update' && git push origin main",
+    "preview": "pnpm build && pnpm serve",
     "clean": "rm -rf .next out node_modules/.cache",
-    "check": "pnpm type-check && pnpm lint && pnpm build"
+    "check": "pnpm type-check && pnpm lint && pnpm build",
+    "deploy": "./scripts/build-static.sh",
+    "deploy:quick": "./scripts/deploy-only.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -85,6 +92,8 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.29.0",
+    "eslint-config-next": "15.3.4",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
