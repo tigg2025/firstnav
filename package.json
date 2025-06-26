@@ -16,14 +16,14 @@
   },
   "scripts": {
     "build": "next build",
-    "build:static": "next build && next export",
+    "build:export": "NEXT_EXPORT=true next build",
     "dev": "next dev",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "start": "next start",
     "serve": "cd out && python3 -m http.server 3000",
     "type-check": "tsc --noEmit",
-    "preview": "pnpm build && pnpm serve",
+    "preview": "pnpm build:export && pnpm serve",
     "deploy:github": "git add . && git commit -m 'feat: update' && git push origin main",
     "clean": "rm -rf .next out node_modules/.cache",
     "check": "pnpm type-check && pnpm lint && pnpm build"

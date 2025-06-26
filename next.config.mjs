@@ -1,19 +1,28 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production'
+const isExport = process.env.NEXT_EXPORT === 'true'
+
 const nextConfig = {
-  // 静态导出配置
-  output: 'export',
-  trailingSlash: true,
+  // 生产环境且导出时才启用静态导出
+  ...(isProd && isExport && {
+    output: 'export',
+    trailingSlash: true,
+    // GitHub Pages配置 - 为仓库名添加basePath
+    assetPrefix: '/firstnav',
+    basePath: '/firstnav',
+  }),
   
-  // 静态导出图片配置
+  // 图片配置
   images: {
-    unoptimized: true, // 静态导出必须禁用图片优化
+    // 静态导出时必须禁用图片优化，开发时可以启用
+    unoptimized: isProd && isExport,
   },
 
   // 基本配置
   poweredByHeader: false,
   generateEtags: false,
   
-  // 禁用ESLint在构建时的检查（如果有问题的话）
+  // ESLint配置
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -26,7 +35,7 @@ const nextConfig = {
   // webpack优化
   webpack: (config, { dev, isServer }) => {
     // 生产环境优化
-    if (!dev) {
+    if (!dev && isProd) {
       config.optimization.splitChunks = {
         chunks: 'all',
         minSize: 20000,
