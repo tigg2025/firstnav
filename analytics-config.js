@@ -3,7 +3,7 @@
 
 // Google Analytics 4 配置
 const GA4_CONFIG = {
-    measurementId: 'G-XXXXXXXXXX', // 替换为你的实际ID
+    measurementId: 'G-CR2T8E3ETR', // 替换为你的实际ID
     
     // 增强型电子商务配置
     ecommerce: {
