@@ -44,3 +44,5 @@ Thumbs.db
 .pnpm-store/
 .yarn/cache/
 .npm/
+
+config/

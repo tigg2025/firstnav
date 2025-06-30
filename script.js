@@ -71,7 +71,19 @@ function setupEventListeners() {
 }
 
 function switchLanguage(lang) {
+    const previousLang = currentLanguage;
     currentLanguage = lang;
+    
+    // 分析追踪：语言切换事件
+    if (typeof GA4_CONFIG !== 'undefined' && previousLang !== lang) {
+        GA4_CONFIG.trackEvents.languageSwitch(previousLang, lang);
+    }
+    
+    // 记录用户行为
+    recordUserAction('language_switch', {
+        fromLang: previousLang,
+        toLang: lang
+    });
     
     // 更新语言按钮显示
     const currentLangSpan = document.getElementById('current-lang');
@@ -83,13 +95,40 @@ function switchLanguage(lang) {
     };
     currentLangSpan.textContent = langTexts[lang];
     
-    // 更新页面语言属性
+    // 更新页面语言属性和meta标签
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+    updateMetaTags(lang);
     
     // 重新渲染内容
     renderContent();
     renderCategories();
     renderFeaturedChips();
+}
+
+// 动态更新meta标签以提升SEO
+function updateMetaTags(lang) {
+    const t = translations[lang];
+    
+    // 更新页面标题
+    document.title = `${t.siteTitle} - ${t.siteDescription}`;
+    
+    // 更新meta描述
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+        const descriptions = {
+            'zh': '专业AI芯片导航平台，提供英伟达、AMD、华为等品牌最新AI芯片对比，包含GPU、NPU、ASIC性能参数、价格评测。助您选择最适合的深度学习训练和推理硬件',
+            'en': 'Professional AI chip navigation platform providing the latest AI chip comparisons from NVIDIA, AMD, Huawei and other brands, including GPU, NPU, ASIC performance parameters and price reviews.',
+            'ja': 'プロフェッショナルAIチップナビゲーションプラットフォーム。NVIDIA、AMD、Huaweiなどのブランドの最新AIチップ比較、GPU、NPU、ASIC性能パラメータと価格レビューを提供。',
+            'ko': '전문 AI 칩 네비게이션 플랫폼. NVIDIA, AMD, Huawei 등 브랜드의 최신 AI 칩 비교, GPU, NPU, ASIC 성능 매개변수 및 가격 리뷰 제공.'
+        };
+        metaDesc.content = descriptions[lang] || descriptions['zh'];
+    }
+    
+    // 更新Open Graph标签
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogTitle) ogTitle.content = `${t.siteTitle} - ${t.siteDescription}`;
+    if (ogDesc) ogDesc.content = metaDesc?.content || descriptions[lang];
 }
 
 function renderContent() {
@@ -173,10 +212,21 @@ function renderCategoryGrid(containerId, categories, translations) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
-    container.innerHTML = categories.map(category => {
+    // 确定分类类型
+    const categoryTypeMap = {
+        'app-scenarios-grid': 'application_scenarios',
+        'hardware-types-grid': 'hardware_types', 
+        'deployment-grid': 'deployment_types'
+    };
+    const categoryType = categoryTypeMap[containerId] || 'unknown';
+    
+    container.innerHTML = categories.map((category, index) => {
         const title = translations[category.id] || category.id;
         return `
-            <div class="chip-card p-6 rounded-lg border-2 ${category.color} cursor-pointer transition-all duration-300">
+            <div class="chip-card p-6 rounded-lg border-2 ${category.color} cursor-pointer transition-all duration-300"
+                 data-category-id="${category.id}"
+                 data-category-type="${categoryType}"
+                 onclick="handleCategoryClick({id: '${category.id}', count: ${category.count}}, '${categoryType}')">
                 <div class="flex items-center justify-between mb-4">
                     <div class="category-icon p-3 rounded-full bg-white">
                         <i data-lucide="${category.icon}" class="h-6 w-6 ${category.iconColor}"></i>
@@ -199,7 +249,9 @@ function renderFeaturedChips() {
     if (!container) return;
     
     container.innerHTML = chipData.featuredChips.map(chip => `
-        <div class="chip-card bg-white rounded-lg shadow-md p-6 border border-gray-200 cursor-pointer">
+        <div class="chip-card bg-white rounded-lg shadow-md p-6 border border-gray-200 cursor-pointer" 
+             data-chip-id="${chip.id}" 
+             onclick="handleChipClick('${chip.id}')">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -266,8 +318,69 @@ function performSearch() {
         chip.applications.some(app => app.toLowerCase().includes(query))
     );
     
+    // 分析追踪：搜索事件
+    if (typeof GA4_CONFIG !== 'undefined') {
+        GA4_CONFIG.trackEvents.search(query, searchResults.length);
+    }
+    
     // 显示搜索结果
     displaySearchResults(query);
+}
+
+// 处理芯片点击事件
+function handleChipClick(chipId) {
+    const chip = chipData.featuredChips.find(c => c.id === chipId);
+    if (!chip) return;
+    
+    // 分析追踪：芯片点击事件
+    if (typeof GA4_CONFIG !== 'undefined') {
+        GA4_CONFIG.trackEvents.chipClick(chip);
+    }
+    
+    // 记录用户行为
+    recordUserAction('chip_click', {
+        chipId: chip.id,
+        vendor: chip.vendor,
+        type: chip.type
+    });
+    
+    // 这里可以添加芯片详情页面跳转或模态框显示
+    console.log('用户点击了芯片:', chip.vendor, chip.model);
+}
+
+// 处理分类点击事件  
+function handleCategoryClick(category, categoryType) {
+    // 分析追踪：分类浏览事件
+    if (typeof GA4_CONFIG !== 'undefined') {
+        GA4_CONFIG.trackEvents.categoryView(category, categoryType);
+    }
+    
+    // 记录用户行为
+    recordUserAction('category_view', {
+        categoryId: category.id,
+        categoryType: categoryType,
+        count: category.count
+    });
+    
+    console.log('用户浏览了分类:', categoryType, category.id);
+}
+
+// 记录用户行为用于分析
+function recordUserAction(actionType, data) {
+    const actions = JSON.parse(sessionStorage.getItem('userActions') || '[]');
+    actions.push({
+        type: actionType,
+        data: data,
+        timestamp: Date.now(),
+        language: currentLanguage
+    });
+    
+    sessionStorage.setItem('userActions', JSON.stringify(actions));
+    
+    // 每5个动作分析一次用户意图
+    if (actions.length % 5 === 0 && typeof GA4_CONFIG !== 'undefined') {
+        GA4_CONFIG.trackEvents.analyzeUserIntent(actions);
+    }
 }
 
 function displaySearchResults(query) {

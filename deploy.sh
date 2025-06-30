@@ -81,7 +81,7 @@ rm -rf * 2>/dev/null || true
 
 # 从原分支复制静态文件
 echo "📋 复制静态文件..."
-git checkout $current_branch -- index.html data.js script.js README.md DEPLOY_TO_GITHUB.md 2>/dev/null || true
+git checkout $current_branch -- index.html data.js script.js 2>/dev/null || true
 
 # 创建 .nojekyll 文件以避免Jekyll处理
 touch .nojekyll
@@ -149,7 +149,7 @@ echo "🎉 部署完成!"
 echo ""
 echo "📋 部署信息:"
 echo "   分支: gh-pages"
-echo "   文件: index.html, data.js, script.js, README.md"
+echo "   文件: index.html, data.js, script.js"
 echo "   大小: $total_size"
 echo ""
 echo "🌐 网站地址 (几分钟后可用):"

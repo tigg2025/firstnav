@@ -150,7 +150,9 @@ const chipData = {
             process: '4nm',
             memory: '80GB HBM3',
             applications: ['training', 'inference'],
-            releaseYear: 2022
+            releaseYear: 2022,
+            keywords: ['NVIDIA H100', 'AI训练芯片', '深度学习GPU', '大模型训练', 'Transformer加速', 'ChatGPT芯片'],
+            description: 'NVIDIA H100是目前最强大的AI训练芯片，专为大语言模型和深度学习训练设计，支持FP8精度，是ChatGPT等AI应用的首选硬件'
         },
         {
             id: 'a100',
@@ -162,7 +164,9 @@ const chipData = {
             process: '7nm',
             memory: '80GB HBM2e',
             applications: ['training', 'inference'],
-            releaseYear: 2020
+            releaseYear: 2020,
+            keywords: ['NVIDIA A100', 'AI加速卡', '数据中心GPU', 'AI推理加速', '云计算AI芯片', '服务器AI芯片'],
+            description: 'NVIDIA A100是数据中心AI加速的标杆产品，广泛应用于AI训练和推理，支持多实例GPU技术，是云计算和企业AI应用的理想选择'
         },
         {
             id: 'tpu-v4',
@@ -174,7 +178,9 @@ const chipData = {
             process: '7nm',
             memory: '32GB HBM2',
             applications: ['training', 'inference'],
-            releaseYear: 2021
+            releaseYear: 2021,
+            keywords: ['Google TPU', 'Tensor处理器', 'ASIC AI芯片', 'TensorFlow加速', '专用AI芯片', 'Google AI芯片'],
+            description: 'Google TPU v4是专为机器学习工作负载设计的ASIC芯片，在TensorFlow框架下表现卓越，是Google Cloud AI服务的核心硬件'
         },
         {
             id: 'ascend-910',
@@ -186,7 +192,9 @@ const chipData = {
             process: '7nm',
             memory: '32GB HBM2',
             applications: ['training'],
-            releaseYear: 2019
+            releaseYear: 2019,
+            keywords: ['华为昇腾', 'NPU神经网络处理器', '国产AI芯片', 'MindSpore加速', '华为AI芯片', '昇腾910'],
+            description: '华为昇腾910是国产领先的AI训练芯片，采用达芬奇架构，支持MindSpore框架，代表了中国在AI芯片领域的技术实力'
         },
         {
             id: 'm1-ultra',

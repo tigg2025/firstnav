@@ -5,38 +5,170 @@
 const GA4_CONFIG = {
     measurementId: 'G-XXXXXXXXXX', // 替换为你的实际ID
     
-    // 自定义事件跟踪
+    // 增强型电子商务配置
+    ecommerce: {
+        // 芯片产品数据转换
+        convertChipToProduct: function(chip) {
+            return {
+                item_id: chip.id,
+                item_name: `${chip.vendor} ${chip.model}`,
+                item_category: chip.type,
+                item_category2: chip.applications?.[0] || 'general',
+                item_variant: chip.process,
+                item_brand: chip.vendor,
+                price: 0, // 可以后续添加价格
+                quantity: 1,
+                custom_parameters: {
+                    performance: chip.performance,
+                    power: chip.power,
+                    memory: chip.memory,
+                    release_year: chip.releaseYear
+                }
+            };
+        }
+    },
+    
+    // 自定义事件跟踪 (增强版)
     trackEvents: {
-        // 搜索事件
-        search: function(searchTerm) {
+        // 搜索事件 (增强版)
+        search: function(searchTerm, resultsCount = 0) {
             gtag('event', 'search', {
                 search_term: searchTerm,
-                page_location: window.location.href
+                search_results: resultsCount,
+                page_location: window.location.href,
+                language: currentLanguage || 'zh',
+                timestamp: Date.now()
+            });
+            
+            // 记录搜索关键词分析
+            this.recordSearchKeyword(searchTerm);
+        },
+        
+        // 芯片点击事件 (增强版)
+        chipClick: function(chipData) {
+            const product = GA4_CONFIG.ecommerce.convertChipToProduct(chipData);
+            
+            // 产品选择事件
+            gtag('event', 'select_item', {
+                item_list_id: 'featured_chips',
+                item_list_name: 'Featured AI Chips',
+                items: [product]
+            });
+            
+            // 产品查看事件
+            gtag('event', 'view_item', {
+                currency: 'USD',
+                value: 0,
+                items: [product]
+            });
+            
+            // 自定义芯片点击事件
+            gtag('event', 'chip_interaction', {
+                event_category: 'product_engagement',
+                chip_vendor: chipData.vendor,
+                chip_type: chipData.type,
+                chip_performance: chipData.performance,
+                language: currentLanguage || 'zh'
             });
         },
         
-        // 芯片点击事件
-        chipClick: function(chipName, chipType) {
-            gtag('event', 'chip_click', {
-                chip_name: chipName,
-                chip_type: chipType,
-                page_location: window.location.href
+        // 分类浏览事件 (增强版)
+        categoryView: function(category, categoryType) {
+            gtag('event', 'view_item_list', {
+                item_list_id: categoryType,
+                item_list_name: categoryType.replace('_', ' '),
+                items: [{
+                    item_id: category.id,
+                    item_name: category.id,
+                    item_category: categoryType
+                }]
+            });
+            
+            gtag('event', 'category_interaction', {
+                event_category: 'navigation',
+                category_type: categoryType,
+                category_id: category.id,
+                category_count: category.count,
+                language: currentLanguage || 'zh'
             });
         },
         
-        // 分类浏览事件
-        categoryView: function(categoryName) {
-            gtag('event', 'category_view', {
-                category_name: categoryName,
-                page_location: window.location.href
-            });
-        },
-        
-        // 语言切换事件
+        // 语言切换事件 (增强版)
         languageSwitch: function(fromLang, toLang) {
-            gtag('event', 'language_switch', {
+            gtag('event', 'language_change', {
+                event_category: 'user_preference',
                 from_language: fromLang,
-                to_language: toLang
+                to_language: toLang,
+                page_location: window.location.href,
+                timestamp: Date.now()
+            });
+        },
+        
+        // 新增：用户意图分析
+        analyzeUserIntent: function(actions) {
+            const intentScore = this.calculateIntentScore(actions);
+            const userSegment = this.determineUserSegment(intentScore);
+            
+            gtag('event', 'user_intent_analysis', {
+                event_category: 'user_behavior',
+                intent_score: intentScore,
+                user_segment: userSegment,
+                session_actions: actions.length,
+                language: currentLanguage || 'zh'
+            });
+        },
+        
+        // 计算用户意图分数
+        calculateIntentScore: function(actions) {
+            let score = 0;
+            actions.forEach(action => {
+                switch(action.type) {
+                    case 'search': score += 15; break;
+                    case 'chip_click': score += 20; break;
+                    case 'category_view': score += 10; break;
+                    case 'language_switch': score += 5; break;
+                    default: score += 2;
+                }
+            });
+            return Math.min(score, 100);
+        },
+        
+        // 确定用户细分
+        determineUserSegment: function(score) {
+            if (score >= 70) return 'high_intent_professional';
+            if (score >= 40) return 'medium_intent_researcher';
+            if (score >= 20) return 'low_intent_casual';
+            return 'visitor';
+        },
+        
+        // 记录搜索关键词用于SEO分析
+        recordSearchKeyword: function(keyword) {
+            const keywords = JSON.parse(localStorage.getItem('seo_keywords') || '{}');
+            const normalizedKeyword = keyword.toLowerCase().trim();
+            
+            keywords[normalizedKeyword] = {
+                count: (keywords[normalizedKeyword]?.count || 0) + 1,
+                lastSearched: Date.now(),
+                language: currentLanguage || 'zh'
+            };
+            
+            localStorage.setItem('seo_keywords', JSON.stringify(keywords));
+            
+            // 分析搜索趋势
+            this.analyzeSearchTrends(keywords);
+        },
+        
+        // 分析搜索趋势
+        analyzeSearchTrends: function(keywords) {
+            const topKeywords = Object.entries(keywords)
+                .sort(([,a], [,b]) => b.count - a.count)
+                .slice(0, 20);
+                
+            gtag('event', 'search_trend_analysis', {
+                event_category: 'seo_insights',
+                top_keyword: topKeywords[0]?.[0] || 'none',
+                total_unique_searches: Object.keys(keywords).length,
+                language: currentLanguage || 'zh'
             });
         }
     }
