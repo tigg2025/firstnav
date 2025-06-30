@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI芯片导航 - 数据监控仪表板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">AI芯片导航 - 数据监控仪表板</h1>
+        
+        <!-- KPI概览 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-blue-100 rounded-full">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">日均访客</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="daily-visitors">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-green-100 rounded-full">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Google排名</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="google-ranking">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-purple-100 rounded-full">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">知乎浏览量</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="zhihu-views">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-yellow-100 rounded-full">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">外链数量</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="backlinks">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 流量趋势图 -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">流量趋势 (近30天)</h2>
+            <canvas id="trafficChart" height="100"></canvas>
+        </div>
+        
+        <!-- 关键词排名 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">关键词排名监控</h2>
+                <div class="space-y-4" id="keyword-rankings">
+                    <!-- 动态生成关键词排名 -->
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">热门内容</h2>
+                <div class="space-y-4" id="popular-content">
+                    <!-- 动态生成热门内容 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 用户行为分析 -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">用户行为分析</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <canvas id="deviceChart"></canvas>
+                    <p class="text-center text-sm text-gray-600 mt-2">设备类型分布</p>
+                </div>
+                <div>
+                    <canvas id="sourceChart"></canvas>
+                    <p class="text-center text-sm text-gray-600 mt-2">流量来源</p>
+                </div>
+                <div>
+                    <canvas id="timeChart"></canvas>
+                    <p class="text-center text-sm text-gray-600 mt-2">访问时间分布</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 目标完成进度 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">目标完成进度</h2>
+            <div class="space-y-6">
+                <div>
+                    <div class="flex justify-between text-sm font-medium text-gray-700">
+                        <span>日均UV目标 (1000)</span>
+                        <span id="uv-progress-text">0%</span>
+                    </div>
+                    <div class="mt-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 0%" id="uv-progress-bar"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between text-sm font-medium text-gray-700">
+                        <span>关键词排名目标 (10个进前3页)</span>
+                        <span id="keyword-progress-text">0%</span>
+                    </div>
+                    <div class="mt-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: 0%" id="keyword-progress-bar"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between text-sm font-medium text-gray-700">
+                        <span>知乎浏览量目标 (50万)</span>
+                        <span id="zhihu-progress-text">0%</span>
+                    </div>
+                    <div class="mt-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-purple-600 h-2 rounded-full" style="width: 0%" id="zhihu-progress-bar"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between text-sm font-medium text-gray-700">
+                        <span>外链数量目标 (20个)</span>
+                        <span id="backlink-progress-text">0%</span>
+                    </div>
+                    <div class="mt-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-600 h-2 rounded-full" style="width: 0%" id="backlink-progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟数据 - 实际使用时连接真实API
+        const mockData = {
+            dailyVisitors: 156,
+            googleRanking: 23,
+            zhihuViews: 12500,
+            backlinks: 3,
+            
+            // 目标进度
+            uvProgress: 15.6, // 156/1000 * 100
+            keywordProgress: 20, // 2/10 * 100
+            zhihuProgress: 2.5, // 12500/500000 * 100
+            backlinkProgress: 15 // 3/20 * 100
+        };
+        
+        // 更新KPI数据
+        function updateKPIs() {
+            document.getElementById('daily-visitors').textContent = mockData.dailyVisitors;
+            document.getElementById('google-ranking').textContent = `平均第${mockData.googleRanking}位`;
+            document.getElementById('zhihu-views').textContent = mockData.zhihuViews.toLocaleString();
+            document.getElementById('backlinks').textContent = mockData.backlinks;
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            // UV进度
+            document.getElementById('uv-progress-text').textContent = `${mockData.uvProgress.toFixed(1)}%`;
+            document.getElementById('uv-progress-bar').style.width = `${mockData.uvProgress}%`;
+            
+            // 关键词进度
+            document.getElementById('keyword-progress-text').textContent = `${mockData.keywordProgress}%`;
+            document.getElementById('keyword-progress-bar').style.width = `${mockData.keywordProgress}%`;
+            
+            // 知乎进度
+            document.getElementById('zhihu-progress-text').textContent = `${mockData.zhihuProgress}%`;
+            document.getElementById('zhihu-progress-bar').style.width = `${mockData.zhihuProgress}%`;
+            
+            // 外链进度
+            document.getElementById('backlink-progress-text').textContent = `${mockData.backlinkProgress}%`;
+            document.getElementById('backlink-progress-bar').style.width = `${mockData.backlinkProgress}%`;
+        }
+        
+        // 流量趋势图
+        function createTrafficChart() {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1日', '5日', '10日', '15日', '20日', '25日', '30日'],
+                    datasets: [{
+                        label: '日均UV',
+                        data: [12, 19, 35, 58, 89, 125, 156],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 设备分布饼图
+        function createDeviceChart() {
+            const ctx = document.getElementById('deviceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['桌面', '移动', '平板'],
+                    datasets: [{
+                        data: [45, 50, 5],
+                        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // 流量来源饼图
+        function createSourceChart() {
+            const ctx = document.getElementById('sourceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['搜索引擎', '直接访问', '社交媒体', '推荐链接'],
+                    datasets: [{
+                        data: [60, 20, 15, 5],
+                        backgroundColor: ['#8B5CF6', '#EC4899', '#EF4444', '#F97316']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // 访问时间分布
+        function createTimeChart() {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-6', '6-12', '12-18', '18-24'],
+                    datasets: [{
+                        label: '访问量',
+                        data: [5, 35, 45, 15],
+                        backgroundColor: '#06B6D4'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 关键词排名
+        function updateKeywordRankings() {
+            const keywords = [
+                { keyword: 'AI芯片', rank: 15, change: '+3' },
+                { keyword: 'GPU对比', rank: 8, change: '+5' },
+                { keyword: '深度学习硬件', rank: 23, change: '-2' },
+                { keyword: 'RTX 4090评测', rank: 12, change: '+8' },
+                { keyword: '华为昇腾', rank: 31, change: '+12' }
+            ];
+            
+            const container = document.getElementById('keyword-rankings');
+            container.innerHTML = keywords.map(item => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <span class="font-medium">${item.keyword}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg font-bold">第${item.rank}位</span>
+                        <span class="text-sm ${item.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}">${item.change}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 热门内容
+        function updatePopularContent() {
+            const content = [
+                { title: '2024年最新AI芯片排行榜', views: 2580 },
+                { title: 'RTX 4090 vs H100性能对比', views: 1920 },
+                { title: '深度学习训练GPU选择指南', views: 1450 },
+                { title: '华为昇腾vs英伟达详细对比', views: 1180 }
+            ];
+            
+            const container = document.getElementById('popular-content');
+            container.innerHTML = content.map(item => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <span class="font-medium text-sm">${item.title}</span>
+                    <span class="text-blue-600 font-bold">${item.views}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 初始化仪表板
+        function initDashboard() {
+            updateKPIs();
+            updateProgress();
+            createTrafficChart();
+            createDeviceChart();
+            createSourceChart();
+            createTimeChart();
+            updateKeywordRankings();
+            updatePopularContent();
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initDashboard);
+        
+        // 每5分钟更新一次数据
+        setInterval(() => {
+            updateKPIs();
+            updateProgress();
+        }, 300000);
+    </script>
+</body>
+</html>
